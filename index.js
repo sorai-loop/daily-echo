@@ -308,7 +308,7 @@ client.on(Events.InteractionCreate, async interaction => {
             if (err || !row || !row.twitter_access_token) return interaction.editReply('まずはXと連携してください。「連携」とメッセージを送るとURLを発行します。');
             try {
                 const userTwitterClient = new TwitterApi(row.twitter_access_token);
-                const tweetText = `${goalText}`;
+                const tweetText = `${goalText}\n\n#tohtech_dev`;
                 const tweetResult = await userTwitterClient.v2.tweet(tweetText);
                 
                 const today = new Date().toLocaleDateString('sv-SE');
@@ -348,7 +348,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 if (err || !userRow || !userRow.twitter_access_token) return interaction.editReply('Xの連携データが見つかりません。');
                 try {
                     const userTwitterClient = new TwitterApi(userRow.twitter_access_token);
-                    const tweetText = `${reflectionText}`;
+                    const tweetText = `${reflectionText}\n\n#tohtech_dev`;
                     await userTwitterClient.v2.tweet({
                         text: tweetText,
                         quote_tweet_id: reportRow.morning_tweet_id
