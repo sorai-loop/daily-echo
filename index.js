@@ -66,7 +66,7 @@ app.get('/callback', async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-    console.log(`サーバー起動: http://127.0.0.1:${process.env.PORT}`);
+    console.log(`サーバー起動: ${process.env.BASE_URL}`);
 });
 
 //DiscordBotの準備と自動化処理
@@ -169,7 +169,7 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
             if (err) return console.error('DB確認エラー:', err);
             if (!row || !row.twitter_access_token) {
                 try {
-                    const authUrl = `http://127.0.0.1:${process.env.PORT}/auth?discord_id=${newMember.id}`;
+                    const authUrl = `${process.env.BASE_URL}/auth?discord_id=${newMember.id}`;
                     await newMember.send(
                         `🎉 ソフ研の進捗報告ロールが付与されました！\n` +
                         `日々の目標や振り返りをXに自動投稿するために、以下のURLをブラウザで開いて連携を許可してください。\n${authUrl}`
@@ -200,7 +200,7 @@ client.on('messageCreate', (message) => {
 
     if (message.channel.isDMBased()) {
         if (message.content === '連携') {
-            const authUrl = `http://127.0.0.1:${process.env.PORT}/auth?discord_id=${message.author.id}`;
+            const authUrl = `${process.env.BASE_URL}/auth?discord_id=${message.author.id}`;
             message.reply(`Xと連携するには、以下のURLをブラウザで開いて許可してください！\n${authUrl}`);
             return;
         }
