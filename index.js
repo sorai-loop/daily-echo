@@ -193,8 +193,8 @@ client.once('ready', async () => {
     const roleId = process.env.TARGET_ROLE_ID;
 
     //定刻のスケジュール登録
-    cron.schedule('47 00 * * *', () => executeMorningTask(client, guildId, roleId));
-    cron.schedule('50 00 * * *', () => executeEveningTask(client));
+    cron.schedule('30 01 * * *', () => executeMorningTask(client, guildId, roleId));
+    cron.schedule('35 01 * * *', () => executeEveningTask(client));
 });
 
 //ロール付与時の挙動
