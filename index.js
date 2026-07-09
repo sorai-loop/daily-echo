@@ -88,7 +88,7 @@ client.once('ready', async () => {
     const roleId = process.env.TARGET_ROLE_ID;
 
     //朝の処理
-    cron.schedule('45 08 * * *', async () => {
+    cron.schedule('47 00 * * *', async () => {
         console.log('データのクリーンアップとアナウンスを開始します。');
 
         db.run('DELETE FROM daily_reports', async (err) => {
@@ -131,7 +131,7 @@ client.once('ready', async () => {
     });
 
     //夜
-    cron.schedule('00 22 * * *', async () => {
+    cron.schedule('50 00 * * *', async () => {
         console.log('振り返りのアナウンスを開始します。');
 
         db.all(`SELECT discord_id FROM daily_reports WHERE is_evening_sent = 0`, [], async (err, rows) => {
