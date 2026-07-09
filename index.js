@@ -309,8 +309,30 @@ client.on(Events.InteractionCreate, async interaction => {
             try {
                 const userTwitterClient = new TwitterApi(row.twitter_access_token);
                 const tweetText = `${goalText}\n\n#tohtech_dev`;
-                const tweetResult = await userTwitterClient.v2.tweet(tweetText);
-                
+                try {
+                    //今のトークンで行けるか試す
+                    tweetResult = await userTwitterClient.v2.tweet(tweetText);
+                } catch (apiError) {
+                    //401エラーで期限切れならトークンをリフレッシュして再試行
+                    if (apiError.code === 401 && row.twitter_refresh_token) {
+                        console.log(`トークンが期限切れのため再発行します: ${interaction.user.tag}`);
+                        const refreshClient = new TwitterApi({
+                            clientId: process.env.TWITTER_CLIENT_ID,
+                            clientSecret: process.env.TWITTER_CLIENT_SECRET,
+                        });
+                        
+                        //新しいトークンを取得
+                        const { client: refreshedClient, accessToken: newAccess, refreshToken: newRefresh } = await refreshClient.refreshOAuth2Token(row.twitter_refresh_token);
+                        
+                        //DBのトークンを最新のものに更新
+                        db.run(`UPDATE users SET twitter_access_token = ?, twitter_refresh_token = ? WHERE discord_id = ?`, [newAccess, newRefresh, interaction.user.id]);
+                        
+                        //新しい鍵で再度ツイート
+                        tweetResult = await refreshedClient.v2.tweet(tweetText);
+                    } else {
+                        throw apiError; //401以外のエラー
+                    }
+                }
                 const today = new Date().toLocaleDateString('sv-SE');
                 db.run(`UPDATE users SET last_reply_date = ? WHERE discord_id = ?`, [today, interaction.user.id]);
                 db.run(`INSERT OR REPLACE INTO daily_reports (discord_id, morning_tweet_id, is_evening_sent) VALUES (?, ?, 0)`, [interaction.user.id, tweetResult.data.id]);
@@ -318,7 +340,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 await interaction.editReply({ content: 'Xへの投稿が完了しました。良い一日を！' });
                 console.log(`【朝のツイート完了】${interaction.user.tag}`);
             } catch (error) {
-                console.error('朝のツイート投稿エラー:', error);
+                console.error('error:朝のツイート投稿エラー:', error);
                 await interaction.editReply({ content: '投稿に失敗しました。' });
             }
         });
@@ -344,21 +366,37 @@ client.on(Events.InteractionCreate, async interaction => {
 
         db.get(`SELECT morning_tweet_id FROM daily_reports WHERE discord_id = ?`, [interaction.user.id], (err, reportRow) => {
             if (err || !reportRow) return interaction.editReply('今日の目標データが見つかりません。');
-            db.get(`SELECT twitter_access_token FROM users WHERE discord_id = ?`, [interaction.user.id], async (err, userRow) => {
+            db.get(`SELECT * FROM users WHERE discord_id = ?`, [interaction.user.id], async (err, userRow) => {
                 if (err || !userRow || !userRow.twitter_access_token) return interaction.editReply('Xの連携データが見つかりません。');
                 try {
-                    const userTwitterClient = new TwitterApi(userRow.twitter_access_token);
+                    let userTwitterClient = new TwitterApi(userRow.twitter_access_token);
                     const tweetText = `${reflectionText}\n\n#tohtech_dev`;
-                    await userTwitterClient.v2.tweet({
-                        text: tweetText,
-                        quote_tweet_id: reportRow.morning_tweet_id
-                    });
+                    let tweetParams = { text: tweetText, quote_tweet_id: reportRow.morning_tweet_id };
+
+                    try {
+                        await userTwitterClient.v2.tweet(tweetParams);
+                    } catch (apiError) {
+                        if (apiError.code === 401 && userRow.twitter_refresh_token) {
+                            console.log(`夜のトークン再発行: ${interaction.user.tag}`);
+                            const refreshClient = new TwitterApi({
+                                clientId: process.env.TWITTER_CLIENT_ID,
+                                clientSecret: process.env.TWITTER_CLIENT_SECRET,
+                            });
+                            const { client: refreshedClient, accessToken: newAccess, refreshToken: newRefresh } = await refreshClient.refreshOAuth2Token(userRow.twitter_refresh_token);
+                            
+                            db.run(`UPDATE users SET twitter_access_token = ?, twitter_refresh_token = ? WHERE discord_id = ?`, [newAccess, newRefresh, interaction.user.id]);
+                            await refreshedClient.v2.tweet(tweetParams);
+                        } else {
+                            throw apiError;
+                        }
+                    }
+
                     db.run(`UPDATE daily_reports SET is_evening_sent = 1 WHERE discord_id = ?`, [interaction.user.id]);
                     await interaction.editReply({ content: '夜の振り返りを引用リツイートで投稿しました！お疲れ様でした！' });
                     console.log(`【夜の引用ツイート完了】${interaction.user.tag}`);
                 } catch (error) {
-                    console.error('夜のツイート投稿エラー:', error);
-                    await interaction.editReply({ content: '投稿に失敗しました。' });
+                    console.error('error:夜のツイート投稿エラー:', error);
+                    await interaction.editReply({ content: '投稿に失敗しました。もう一度連携を試してください。' });
                 }
             });
         });
