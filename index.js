@@ -20,7 +20,7 @@ const twitterClient = new TwitterApi({
     clientSecret: process.env.TWITTER_CLIENT_SECRET,
 });
 
-const CALLBACK_URL = `http://127.0.0.1:${process.env.PORT}/callback`;
+const CALLBACK_URL = `${process.env.BASE_URL}/callback`;
 
 app.get('/auth', (req, res) => {
     const discordId = req.query.discord_id;
