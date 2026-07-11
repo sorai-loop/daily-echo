@@ -111,13 +111,14 @@ async function executeMorningTask(client, guildId, roleId) {
                 ];
                 
                 //ここにrund関数の処理をおく
-                let greeting = 'おはようございます！今日の目標を教えてください。';
+                const randomIndex = Math.floor(Math.random() * morningPhrases.length);
+                let greeting = morningPhrases[randomIndex];
 
                 if (row && row.last_reply_date) {
                     const lastDate = new Date(row.last_reply_date);
                     const today = new Date();
                     const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 2) greeting = `おはようございます！${diffDays}日ぶりの回答お待ちしてます！今日の目標を教えてください✨`;
+                    if (diffDays >= 2) greeting = `${diffDays}日ぶりの回答お待ちしてます！`;
                 }
 
                 const button = new ButtonBuilder()
@@ -247,13 +248,13 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     //全体向けテストコマンド
-    if (message.content === '!test_morning') {
+    if (message.content === '!test_morning_all') {
         message.reply('強制的に朝のタスクを実行します... ログを確認してください。');
         await executeMorningTask(client, process.env.GUILD_ID, process.env.TARGET_ROLE_ID);
         return;
     }
 
-    if (message.content === '!test_evening') {
+    if (message.content === '!test_evening_all') {
         message.reply('強制的に夜のタスクを実行します... ログを確認してください。');
         await executeEveningTask(client);
         return;
