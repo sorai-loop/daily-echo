@@ -161,13 +161,25 @@ async function executeEveningTask(client) {
         for (const row of rows) {
             try {
                 const user = await client.users.fetch(row.discord_id);
+
+                const eveningPhrases = [
+                    '1日お疲れ様でした！今日の目標の振り返りを教えてください。🌙',
+                    '今日も1日おつかれさまです！コンパイルエラーやバグと闘った記録、そして今日達成できたことを教えてください。💻',
+                    'お疲れ様でした！ソフトウェア工学的な美しい設計は進みましたか？今日の反省と成果をXに刻みましょう！✨',
+                    '夜の進捗報告タイムです。いろんなバグに悩まされた方も、まずは今日の振り返りを出力してみましょう！☕',
+                    '今日も開発お疲れ様でした！明日の自分にバトンを渡すための、今日の振り返りをお願いします。🚀'
+                ];
+
+                const randomIndex = Math.floor(Math.random() * eveningPhrases.length);
+                const eveningMessage = eveningPhrases[randomIndex];
+
                 const button = new ButtonBuilder()
                     .setCustomId('open_reflection_modal')
                     .setLabel('今日の振り返りを入力する')
                     .setStyle(ButtonStyle.Success);
                 const actionRow = new ActionRowBuilder().addComponents(button);
 
-                await user.send({ content: '1日お疲れ様でした！今日の目標の振り返りを教えてください。', components: [actionRow] });
+                await user.send({ content: eveningMessage, components: [actionRow] });
                 sentUsers.push(user.tag); //成功したら配列に追加
             } catch (error) {
                 console.error(`error:${row.discord_id} への夜のDM送信に失敗しました。`);
