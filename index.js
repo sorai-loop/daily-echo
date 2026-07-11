@@ -274,6 +274,7 @@ client.on('messageCreate', async (message) => {
 
     //単体テスト
     if (message.content === '!test_morning') {
+        console.log('朝の単体テストコマンド起動')
         const morningPhrases = [
                 'おはようございます！今日の目標を教えてください。🔥',
                 'おはようございます！今日も1日、開発をコツコツ進めていきましょう。今日の目標は？💻',
@@ -304,7 +305,7 @@ client.on('messageCreate', async (message) => {
                 '夜の進捗報告タイムです。いろんなバグに悩まされた方も、まずは今日の振り返りを出力してみましょう！☕',
                 '今日も開発お疲れ様でした！明日の自分にバトンを渡すための、今日の振り返りをお願いします。🚀'
             ];
-            
+
         const eveningMessage = eveningPhrases[Math.floor(Math.random() * eveningPhrases.length)];
         
         const button = new ButtonBuilder()
@@ -378,7 +379,7 @@ client.on(Events.InteractionCreate, async interaction => {
             if (err || !row || !row.twitter_access_token) return interaction.editReply('まずはXと連携してください。「連携」とメッセージを送るとURLを発行します。');
             try {
                 const userTwitterClient = new TwitterApi(row.twitter_access_token);
-                const tweetText = `${goalText}`;
+                const tweetText = `今日の目標\n─────────\n${goalText}`;
                 try {
                     //今のトークンで行けるか試す
                     tweetResult = await userTwitterClient.v2.tweet(tweetText);
@@ -440,7 +441,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 if (err || !userRow || !userRow.twitter_access_token) return interaction.editReply('Xの連携データが見つかりません。');
                 try {
                     let userTwitterClient = new TwitterApi(userRow.twitter_access_token);
-                    const tweetText = `${reflectionText}`;
+                    const tweetText = `今日の振り返り\n────────────\n$${reflectionText}`;
                     let tweetParams = { text: tweetText, quote_tweet_id: reportRow.morning_tweet_id };
 
                     try {
