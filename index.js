@@ -112,7 +112,7 @@ async function executeMorningTask(client, guildId, roleId) {
                 
                 //ここにrund関数の処理をおく
                 const randomIndex = Math.floor(Math.random() * morningPhrases.length);
-                let greeting = morningPhrases[randomIndex];
+                let greeting = morningPhrases[randomIndex]+'もちろん、技術以外のこともOKです！';
 
                 if (row && row.last_reply_date) {
                     const lastDate = new Date(row.last_reply_date);
@@ -282,7 +282,7 @@ client.on('messageCreate', async (message) => {
                 'おはよーございます！今熱中しているプログラミングやタスク、今日の予定を教えてください✨',
                 'おはようございます！今日も素晴らしいコードが書けますように。今日の目標をどうぞ！🤖'
             ];
-        const greeting = morningPhrases[Math.floor(Math.random() * morningPhrases.length)];
+        const greeting = morningPhrases[Math.floor(Math.random() * morningPhrases.length)]+'\nもちろん、技術系以外のことでもOKです！';
         
         const button = new ButtonBuilder()
             .setCustomId('open_goal_modal')
