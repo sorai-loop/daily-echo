@@ -102,6 +102,15 @@ async function executeMorningTask(client, guildId, roleId) {
                     });
                 });
 
+                const morningPhrases = [
+                    'おはようございます！今日の目標を教えてください。🔥',
+                    'おはようございます！今日も1日、開発をコツコツ進めていきましょう。今日の目標は？💻',
+                    'おはようございます！進捗は日々の積み重ねから。今日の目標を宣言しましょう！🚀',
+                    'おはよーございます！今熱中しているプログラミングやタスク、今日の予定を教えてください✨',
+                    'おはようございます！今日も素晴らしいコードが書けますように。今日の目標をどうぞ！🤖'
+                ];
+                
+                //ここにrund関数の処理をおく
                 let greeting = 'おはようございます！今日の目標を教えてください。';
 
                 if (row && row.last_reply_date) {
@@ -308,7 +317,7 @@ client.on(Events.InteractionCreate, async interaction => {
             if (err || !row || !row.twitter_access_token) return interaction.editReply('まずはXと連携してください。「連携」とメッセージを送るとURLを発行します。');
             try {
                 const userTwitterClient = new TwitterApi(row.twitter_access_token);
-                const tweetText = `${goalText}\n\n#tohtech_dev`;
+                const tweetText = `${goalText}`;
                 try {
                     //今のトークンで行けるか試す
                     tweetResult = await userTwitterClient.v2.tweet(tweetText);
@@ -370,7 +379,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 if (err || !userRow || !userRow.twitter_access_token) return interaction.editReply('Xの連携データが見つかりません。');
                 try {
                     let userTwitterClient = new TwitterApi(userRow.twitter_access_token);
-                    const tweetText = `${reflectionText}\n\n#tohtech_dev`;
+                    const tweetText = `${reflectionText}`;
                     let tweetParams = { text: tweetText, quote_tweet_id: reportRow.morning_tweet_id };
 
                     try {
