@@ -271,6 +271,54 @@ client.on('messageCreate', async (message) => {
         await executeEveningTask(client);
         return;
     }
+
+    //単体テスト
+    if (message.content === '!test_morning') {
+        const morningPhrases = [
+                'おはようございます！今日の目標を教えてください。🔥',
+                'おはようございます！今日も1日、開発をコツコツ進めていきましょう。今日の目標は？💻',
+                'おはようございます！進捗は日々の積み重ねから。今日の目標を宣言しましょう！🚀',
+                'おはよーございます！今熱中しているプログラミングやタスク、今日の予定を教えてください✨',
+                'おはようございます！今日も素晴らしいコードが書けますように。今日の目標をどうぞ！🤖'
+            ];
+        const greeting = morningPhrases[Math.floor(Math.random() * morningPhrases.length)];
+        
+        const button = new ButtonBuilder()
+            .setCustomId('open_goal_modal')
+            .setLabel('今日の目標を入力する')
+            .setStyle(ButtonStyle.Primary);
+        const actionRow = new ActionRowBuilder().addComponents(button);
+
+        // コマンドを打った本人(message.author)のDMに直接送信
+        await message.author.send({ content: `【自分用テスト】\n${greeting}`, components: [actionRow] });
+        message.reply('自分宛てに朝のテストDMを送信しました！');
+        return;
+    }
+
+    // 単体テスト
+    if (message.content === '!test_evening') {
+        const eveningPhrases = [
+                '1日お疲れ様でした！今日の目標の振り返りを教えてください。🌙',
+                '今日も1日おつかれさまです！コンパイルエラーやバグと闘った記録、そして今日達成できたことを教えてください。💻',
+                'お疲れ様でした！ソフトウェア工学的な美しい設計は進みましたか？今日の反省と成果をXに刻みましょう！✨',
+                '夜の進捗報告タイムです。いろんなバグに悩まされた方も、まずは今日の振り返りを出力してみましょう！☕',
+                '今日も開発お疲れ様でした！明日の自分にバトンを渡すための、今日の振り返りをお願いします。🚀'
+            ];
+            
+        const eveningMessage = eveningPhrases[Math.floor(Math.random() * eveningPhrases.length)];
+        
+        const button = new ButtonBuilder()
+            .setCustomId('open_reflection_modal')
+            .setLabel('今日の振り返りを入力する')
+            .setStyle(ButtonStyle.Success);
+        const actionRow = new ActionRowBuilder().addComponents(button);
+
+        // コマンドを打った本人(message.author)のDMに直接送信
+        await message.author.send({ content: `【自分用テスト】\n${eveningMessage}`, components: [actionRow] });
+        message.reply('自分宛てに夜のテストDMを送信しました！');
+        return;
+    }
+
     // ------------------------------------------
 
     if (message.channel.isDMBased()) {
