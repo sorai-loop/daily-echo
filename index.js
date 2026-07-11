@@ -102,13 +102,23 @@ async function executeMorningTask(client, guildId, roleId) {
                     });
                 });
 
-                let greeting = 'おはようございます！今日の目標を教えてください。';
+                const morningPhrases = [
+                    'おはようございます！今日の目標を教えてください。🔥',
+                    'おはようございます！今日も1日、開発をコツコツ進めていきましょう。今日の目標は？💻',
+                    'おはようございます！進捗は日々の積み重ねから。今日の目標を宣言しましょう！🚀',
+                    'おはよーございます！今熱中しているプログラミングやタスク、今日の予定を教えてください✨',
+                    'おはようございます！今日も素晴らしいコードが書けますように。今日の目標をどうぞ！🤖'
+                ];
+                
+                //ここにrund関数の処理をおく
+                const randomIndex = Math.floor(Math.random() * morningPhrases.length);
+                let greeting = morningPhrases[randomIndex];
 
                 if (row && row.last_reply_date) {
                     const lastDate = new Date(row.last_reply_date);
                     const today = new Date();
                     const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 2) greeting = `おはようございます！${diffDays}日ぶりの回答お待ちしてます！今日の目標を教えてください✨`;
+                    if (diffDays >= 2) greeting = `${diffDays}日ぶりの回答お待ちしてます！`;
                 }
 
                 const button = new ButtonBuilder()
@@ -151,13 +161,25 @@ async function executeEveningTask(client) {
         for (const row of rows) {
             try {
                 const user = await client.users.fetch(row.discord_id);
+
+                const eveningPhrases = [
+                    '1日お疲れ様でした！今日の目標の振り返りを教えてください。🌙',
+                    '今日も1日おつかれさまです！コンパイルエラーやバグと闘った記録、そして今日達成できたことを教えてください。💻',
+                    'お疲れ様でした！ソフトウェア工学的な美しい設計は進みましたか？今日の反省と成果をXに刻みましょう！✨',
+                    '夜の進捗報告タイムです。いろんなバグに悩まされた方も、まずは今日の振り返りを出力してみましょう！☕',
+                    '今日も開発お疲れ様でした！明日の自分にバトンを渡すための、今日の振り返りをお願いします。🚀'
+                ];
+
+                const randomIndex = Math.floor(Math.random() * eveningPhrases.length);
+                const eveningMessage = eveningPhrases[randomIndex];
+
                 const button = new ButtonBuilder()
                     .setCustomId('open_reflection_modal')
                     .setLabel('今日の振り返りを入力する')
                     .setStyle(ButtonStyle.Success);
                 const actionRow = new ActionRowBuilder().addComponents(button);
 
-                await user.send({ content: '1日お疲れ様でした！今日の目標の振り返りを教えてください。', components: [actionRow] });
+                await user.send({ content: eveningMessage, components: [actionRow] });
                 sentUsers.push(user.tag); //成功したら配列に追加
             } catch (error) {
                 console.error(`error:${row.discord_id} への夜のDM送信に失敗しました。`);
@@ -238,13 +260,13 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     //全体向けテストコマンド
-    if (message.content === '!test_morning') {
+    if (message.content === '!test_morning_all') {
         message.reply('強制的に朝のタスクを実行します... ログを確認してください。');
         await executeMorningTask(client, process.env.GUILD_ID, process.env.TARGET_ROLE_ID);
         return;
     }
 
-    if (message.content === '!test_evening') {
+    if (message.content === '!test_evening_all') {
         message.reply('強制的に夜のタスクを実行します... ログを確認してください。');
         await executeEveningTask(client);
         return;
@@ -308,7 +330,7 @@ client.on(Events.InteractionCreate, async interaction => {
             if (err || !row || !row.twitter_access_token) return interaction.editReply('まずはXと連携してください。「連携」とメッセージを送るとURLを発行します。');
             try {
                 const userTwitterClient = new TwitterApi(row.twitter_access_token);
-                const tweetText = `${goalText}\n\n#tohtech_dev`;
+                const tweetText = `${goalText}`;
                 try {
                     //今のトークンで行けるか試す
                     tweetResult = await userTwitterClient.v2.tweet(tweetText);
@@ -370,7 +392,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 if (err || !userRow || !userRow.twitter_access_token) return interaction.editReply('Xの連携データが見つかりません。');
                 try {
                     let userTwitterClient = new TwitterApi(userRow.twitter_access_token);
-                    const tweetText = `${reflectionText}\n\n#tohtech_dev`;
+                    const tweetText = `${reflectionText}`;
                     let tweetParams = { text: tweetText, quote_tweet_id: reportRow.morning_tweet_id };
 
                     try {
