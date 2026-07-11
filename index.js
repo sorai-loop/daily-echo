@@ -274,6 +274,7 @@ client.on('messageCreate', async (message) => {
 
     //単体テスト
     if (message.content === '!test_morning') {
+        console.log('朝の単体テストコマンド起動')
         const morningPhrases = [
                 'おはようございます！今日の目標を教えてください。🔥',
                 'おはようございます！今日も1日、開発をコツコツ進めていきましょう。今日の目標は？💻',
@@ -304,7 +305,7 @@ client.on('messageCreate', async (message) => {
                 '夜の進捗報告タイムです。いろんなバグに悩まされた方も、まずは今日の振り返りを出力してみましょう！☕',
                 '今日も開発お疲れ様でした！明日の自分にバトンを渡すための、今日の振り返りをお願いします。🚀'
             ];
-            
+
         const eveningMessage = eveningPhrases[Math.floor(Math.random() * eveningPhrases.length)];
         
         const button = new ButtonBuilder()
